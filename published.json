@@ -1,0 +1,38 @@
+{
+  "wechat": [
+    {
+      "url": "https://mp.weixin.qq.com/s/gP8lE0Y1H0SBi-dmEfzYWw",
+      "title": "梦寐以求！",
+      "author": "武书剑",
+      "account": "小马快过河",
+      "published_at": "2026-07-31 20:34",
+      "archive_date": "2026-07-31",
+      "mode": "downloaded-fulltext",
+      "url_hash": "3a4e6763acafd75e59ff6d9f9c6e2e0711d2cb49b073c2cf0f8781b6965b379b",
+      "source_file": "梦寐以求 ！-2026-08-01 16_04_05.md",
+      "file_hash": "3de1ebf69af8c8021577af50e78c2d34f84f5a546320558d066d06188f778122"
+    },
+    {
+      "url": "",
+      "title": "坏人行善！",
+      "author": "武书剑",
+      "account": "天之津",
+      "published_at": "2026-07-23 20:03",
+      "archive_date": "2026-07-23",
+      "mode": "downloaded-fulltext",
+      "source_file": "坏人行善 !-2026-08-01 16_19_22.md",
+      "file_hash": "81c16f695f16c6a2ef3dd463dd65a9b964d31dd9e068d301de6ece8049acd182"
+    },
+    {
+      "url": "",
+      "title": "我不当好人！",
+      "author": "武书剑",
+      "account": "天之津",
+      "published_at": "2026-07-17 10:31",
+      "archive_date": "2026-07-17",
+      "mode": "downloaded-fulltext",
+      "source_file": "我不当好人 !-2026-08-01 16_22_23.md",
+      "file_hash": "c942fad7da155b7dd72df98d3f4dbf372f1586c803814ad11586e7c3559ea623"
+    }
+  ]
+}
