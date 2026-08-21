@@ -179,6 +179,9 @@ def _font(path: str, size: int):
         _FONT_CACHE[key]=ImageFont.truetype(path,size)
     return _FONT_CACHE[key]
 
+def _pick_font(*candidates: str) -> str:
+    return next((p for p in candidates if Path(p).exists()), candidates[0])
+
 def make_og_image(article: dict, target: Path) -> None:
     try:
         from PIL import Image, ImageDraw, ImageFont
@@ -189,8 +192,19 @@ def make_og_image(article: dict, target: Path) -> None:
     bg, ink, accent, muted = (244, 240, 232), (27, 27, 26), (164, 59, 45), (116, 111, 102)
     image = Image.new("RGB", (W, H), bg)
     draw = ImageDraw.Draw(image)
-    regular_path = FONT_REGULAR if Path(FONT_REGULAR).exists() else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-    bold_path = FONT_BOLD if Path(FONT_BOLD).exists() else regular_path
+    regular_path = _pick_font(
+        FONT_REGULAR,
+        "C:/Windows/Fonts/msyh.ttc",
+        "C:/Windows/Fonts/simhei.ttf",
+        "C:/Windows/Fonts/simsun.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    )
+    bold_path = _pick_font(
+        FONT_BOLD,
+        "C:/Windows/Fonts/msyhbd.ttc",
+        "C:/Windows/Fonts/simhei.ttf",
+        regular_path,
+    )
     font_brand = _font(bold_path, 34)
     font_title = _font(bold_path, 58)
     font_date = _font(regular_path, 25)
