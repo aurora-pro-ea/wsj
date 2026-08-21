@@ -1,6 +1,6 @@
 # 武书剑文章档案 · V2
 
-静态站点：<https://wushujian.pages.dev/>
+静态站点：<https://wushujian2.pages.dev/>
 
 ## V2 做了什么
 
