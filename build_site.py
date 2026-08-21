@@ -14,7 +14,7 @@ from wechat_imports import parse_downloaded_articles, title_key
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "dist"
-SITE_URL = "https://wushujian.pages.dev"
+SITE_URL = "https://wushujian2.pages.dev"
 SOURCE_FILES = [
     ROOT / "2024年文章整理.md",
     ROOT / "2025年图片文章整理.md",

@@ -6,6 +6,8 @@ import re
 import sys
 from pathlib import Path
 
+from build_site import SITE_URL
+
 
 def internal_target(root: Path, href: str) -> Path | None:
     if not href.startswith("/") or href.startswith("//"):
@@ -48,7 +50,7 @@ def main() -> int:
         if meta(source, "twitter:card", True) != "summary_large_image": errors.append(f"missing twitter card: {page.relative_to(root).as_posix()}")
         image = meta(source, "og:image")
         if image.startswith("https://"):
-            rel = image.split("wushujian.pages.dev", 1)[-1].lstrip("/")
+            rel = image.split(SITE_URL, 1)[-1].lstrip("/")
             if not (root / rel).is_file(): errors.append(f"missing OG image: {rel}")
 
     for page in root.rglob("*.html"):

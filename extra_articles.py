@@ -54,7 +54,7 @@ def _clean_fly_chunk(chunk: str, title: str) -> list[str]:
 
 def _fly_articles() -> list[dict]:
     # Unicode escapes keep this source file ASCII-safe on Windows consoles.
-    path = Path("E:/\u6587\u6863/Obsidian Vault/\u98de\u8d8a\u75af\u4eba\u9662 !.md")
+    path = Path(__file__).resolve().parent / "data" / "飞越疯人院 !.md"
     if not path.exists():
         return []
     chunks = [c for c in re.split(r"(?m)^\s*----\s*$", path.read_text(encoding="utf-8")) if c.strip()]
