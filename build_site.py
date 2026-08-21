@@ -371,7 +371,7 @@ def build() -> tuple[list[dict], Path]:
             used.add(slug)
         article["slug"] = slug
         article["url"] = f"/articles/{slug}/"
-        override = overrides.get(key, {}) if isinstance(overrides, dict) else {}
+        override = overrides.get(map_key, {}) if isinstance(overrides, dict) else {}
         article.update({k: v for k, v in override.items() if k in {"title", "description", "author", "account"}})
         article["html_body"], article["toc"] = render_fragment(article["body_lines"])
         if not article["html_body"]:
