@@ -16,7 +16,7 @@ function Push-ToGithub {
     param([int]$Attempts = 3)
     for ($i = 1; $i -le $Attempts; $i++) {
         Write-Host "Pushing to GitHub (attempt $i/$Attempts)..."
-        git push origin main 2>&1
+        git push origin main
         if ($LASTEXITCODE -eq 0) {
             return $true
         }
