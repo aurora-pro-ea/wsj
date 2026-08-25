@@ -6,6 +6,14 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 Set-Location -LiteralPath $PSScriptRoot
 
+# Prevent concurrent publish instances (avoids git index.lock conflicts)
+$running = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe' OR Name='pwsh.exe'" -ErrorAction SilentlyContinue |
+    Where-Object { $_.CommandLine -match "-File.*publish\.ps1" -and $_.ProcessId -ne $PID })
+if ($running.Count -gt 0) {
+    Write-Host "publish.ps1 is already running. Close other publish windows first."
+    exit 1
+}
+
 function Assert-LastExitCode([string]$Step) {
     if ($LASTEXITCODE -ne 0) {
         throw "$Step failed with exit code $LASTEXITCODE"
@@ -15,16 +23,26 @@ function Assert-LastExitCode([string]$Step) {
 function Clear-StaleGitLock {
     $lock = Join-Path $PSScriptRoot ".git\index.lock"
     if (Test-Path -LiteralPath $lock) {
+        try {
+            $ageSec = [Math]::Round(((Get-Date) - (Get-Item -LiteralPath $lock -Force).CreationTime).TotalSeconds, 0)
+        }
+        catch { $ageSec = 999 }
         $busy = @(Get-Process -Name "git*" -ErrorAction SilentlyContinue)
-        if ($busy.Count -eq 0) {
-            Remove-Item -LiteralPath $lock -Force
-            Write-Host "Removed stale .git/index.lock"
+        if ($busy.Count -eq 0 -or $ageSec -gt 30) {
+            try {
+                Remove-Item -LiteralPath $lock -Force -ErrorAction Stop
+                Write-Host "Removed stale .git/index.lock (age ${ageSec}s)"
+            }
+            catch {
+                Write-Host "Could not remove .git/index.lock: $($_.Exception.Message)"
+            }
         }
         else {
-            Write-Host "Git appears busy; keeping .git/index.lock"
+            Write-Host "Git appears busy; keeping .git/index.lock (age ${ageSec}s)"
         }
     }
 }
+
 function Push-ToGithub {
     param([int]$Attempts = 3)
     for ($i = 1; $i -le $Attempts; $i++) {
@@ -39,10 +57,10 @@ function Push-ToGithub {
         }
     }
     Write-Host ""
-    Write-Host "Push failed after $Attempts attempts. 常见原因与处理："
-    Write-Host "  1) 远端有本地没有的提交 -> 先执行: git pull --rebase origin main，再重试本脚本"
-    Write-Host "  2) TLS/网络握手失败(schannel) -> 直接重试，或执行: git config --global http.sslBackend openssl"
-    Write-Host "  3) 登录失效 -> 在 Git Credential Manager 弹出的窗口完成登录后重试"
+    Write-Host "Push failed after $Attempts attempts. Common fixes:"
+    Write-Host "  1) Remote has commits you don't have -> run: git pull --rebase origin main, then retry"
+    Write-Host "  2) TLS handshake error (schannel) -> retry, or run: git config --global http.sslBackend openssl"
+    Write-Host "  3) Login expired -> complete the Git Credential Manager window, then retry"
     return $false
 }
 
