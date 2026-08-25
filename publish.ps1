@@ -12,6 +12,19 @@ function Assert-LastExitCode([string]$Step) {
     }
 }
 
+function Clear-StaleGitLock {
+    $lock = Join-Path $PSScriptRoot ".git\index.lock"
+    if (Test-Path -LiteralPath $lock) {
+        $busy = @(Get-Process -Name "git*" -ErrorAction SilentlyContinue)
+        if ($busy.Count -eq 0) {
+            Remove-Item -LiteralPath $lock -Force
+            Write-Host "Removed stale .git/index.lock"
+        }
+        else {
+            Write-Host "Git appears busy; keeping .git/index.lock"
+        }
+    }
+}
 function Push-ToGithub {
     param([int]$Attempts = 3)
     for ($i = 1; $i -le $Attempts; $i++) {
@@ -42,6 +55,7 @@ python .\validate_site.py .\dist
 Assert-LastExitCode "Site validation"
 
 Write-Host "[3/5] Staging changes..."
+Clear-StaleGitLock
 git add --all
 Assert-LastExitCode "Git add"
 
