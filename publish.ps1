@@ -27,8 +27,7 @@ function Clear-StaleGitLock {
             $ageSec = [Math]::Round(((Get-Date) - (Get-Item -LiteralPath $lock -Force).CreationTime).TotalSeconds, 0)
         }
         catch { $ageSec = 999 }
-        $busy = @(Get-Process -Name "git*" -ErrorAction SilentlyContinue)
-        if ($busy.Count -eq 0 -or $ageSec -gt 30) {
+        if ($ageSec -gt 5) {
             try {
                 Remove-Item -LiteralPath $lock -Force -ErrorAction Stop
                 Write-Host "Removed stale .git/index.lock (age ${ageSec}s)"
@@ -38,9 +37,25 @@ function Clear-StaleGitLock {
             }
         }
         else {
-            Write-Host "Git appears busy; keeping .git/index.lock (age ${ageSec}s)"
+            Write-Host "index.lock is fresh (age ${ageSec}s); will retry git add shortly."
         }
     }
+}
+
+function Invoke-GitAddWithRetry {
+    param([int]$Attempts = 5)
+    for ($i = 1; $i -le $Attempts; $i++) {
+        Clear-StaleGitLock
+        git add --all
+        if ($LASTEXITCODE -eq 0) {
+            return $true
+        }
+        if ($i -lt $Attempts) {
+            Write-Host "git add failed (exit $LASTEXITCODE), retrying in 3 seconds..."
+            Start-Sleep -Seconds 3
+        }
+    }
+    return $false
 }
 
 function Push-ToGithub {
@@ -73,9 +88,9 @@ python .\validate_site.py .\dist
 Assert-LastExitCode "Site validation"
 
 Write-Host "[3/5] Staging changes..."
-Clear-StaleGitLock
-git add --all
-Assert-LastExitCode "Git add"
+if (-not (Invoke-GitAddWithRetry)) {
+    throw "Git add failed after retries"
+}
 
 git diff --cached --quiet
 $hasChanges = ($LASTEXITCODE -eq 1)
